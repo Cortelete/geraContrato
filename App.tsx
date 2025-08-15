@@ -19,7 +19,7 @@ const initialContractorData: ContractorData = {
 };
 
 const FileIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
 );
 
 const RefreshIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -29,7 +29,6 @@ const RefreshIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const SparklesIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3L9.5 8.5L4 11L9.5 13.5L12 19L14.5 13.5L20 11L14.5 8.5L12 3z"/><path d="M5 3v4h4"/><path d="M19 17v4h-4"/></svg>
 );
-
 
 const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
@@ -51,6 +50,13 @@ const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
 );
 
+const LightbulbIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+);
+
+const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+);
 
 const App: React.FC = () => {
     const [step, setStep] = useState<'initial' | 'editing'>('initial');
@@ -140,6 +146,7 @@ const App: React.FC = () => {
                                         title: { type: Type.STRING, description: "O título da cláusula. Ex: 'Cláusula Primeira - Do Objeto'" },
                                         content: { type: Type.STRING, description: "O texto completo da cláusula." }
                                     },
+                                    required: ['title', 'content'],
                                 }
                             },
                             terms: {
@@ -151,9 +158,11 @@ const App: React.FC = () => {
                                         title: { type: Type.STRING, description: "O título do termo. Ex: '1. Política de Cancelamento'" },
                                         content: { type: Type.STRING, description: "O texto completo do termo." }
                                     },
+                                    required: ['title', 'content'],
                                 }
                             }
                         },
+                         required: ['title', 'clauses', 'terms'],
                     },
                 },
             });
@@ -173,8 +182,8 @@ const App: React.FC = () => {
         }
     };
     
-    const inputStyle = "w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:ring-2 focus:ring-brand-primary focus:outline-none transition-shadow";
-    const labelStyle = "block text-sm font-medium text-slate-400 mb-1";
+    const inputStyle = "w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary focus:outline-none transition-all";
+    const labelStyle = "block text-sm font-medium text-slate-400 mb-2";
 
     const createClauseUpdater = useCallback(<T extends { id: string }>(setter: React.Dispatch<React.SetStateAction<T[]>>) => (id: string, field: keyof T, value: string) => {
         setter(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -198,8 +207,8 @@ const App: React.FC = () => {
     const handleRemoveClause = createItemRemover(setClauses);
     const handleRemoveTerm = createItemRemover(setTerms);
 
-    const renderClientFormField = (key: keyof FormData, label: string, type = 'text') => (
-        <div>
+    const renderClientFormField = (key: keyof FormData, label: string, type = 'text', containerClass = '') => (
+        <div className={containerClass}>
             <label htmlFor={key} className={labelStyle}>{label}</label>
             <input id={key} name={key} type={type} value={formData[key] as string} onChange={handleUpdateField} className={inputStyle} />
         </div>
@@ -211,19 +220,19 @@ const App: React.FC = () => {
         onAddItem: () => void, onRemoveItem: (id: string) => void, addBtnText: string
     ) => (
         <div>
-            <h3 className="text-xl font-semibold mb-3 text-brand-gold">{title}</h3>
+            <h3 className="text-xl font-semibold mb-4 text-slate-200">{title}</h3>
             <div className="space-y-4">
                 {items.map((item) => (
-                    <div key={item.id} className="bg-slate-900/50 p-4 rounded-md transition-all">
-                        <div className="flex justify-between items-center mb-2">
-                            <input type="text" value={item.title} onChange={(e) => onItemChange(item.id, 'title', e.target.value)} className={`${inputStyle} font-semibold`} placeholder="Título da cláusula" />
-                            <button onClick={() => onRemoveItem(item.id)} className="text-slate-400 hover:text-red-500 ml-4 p-1 transition-colors"><TrashIcon className="h-5 w-5" /></button>
+                    <div key={item.id} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700 transition-all">
+                        <div className="flex justify-between items-center mb-3">
+                            <input type="text" value={item.title} onChange={(e) => onItemChange(item.id, 'title', e.target.value)} className={`${inputStyle} text-base font-semibold`} placeholder="Título da cláusula" />
+                            <button onClick={() => onRemoveItem(item.id)} className="text-slate-500 hover:text-red-500 ml-4 p-1 transition-colors flex-shrink-0"><TrashIcon className="h-5 w-5" /></button>
                         </div>
-                        <textarea value={item.content} onChange={(e) => onItemChange(item.id, 'content', e.target.value)} className={`${inputStyle} h-24`} rows={4} placeholder="Conteúdo da cláusula..." />
+                        <textarea value={item.content} onChange={(e) => onItemChange(item.id, 'content', e.target.value)} className={`${inputStyle} h-28 text-sm`} rows={4} placeholder="Conteúdo da cláusula..." />
                     </div>
                 ))}
             </div>
-            <button onClick={onAddItem} className="mt-4 flex items-center text-brand-primary hover:text-opacity-80 font-semibold transition-all"><PlusCircleIcon className="mr-2 h-5 w-5" />{addBtnText}</button>
+            <button onClick={onAddItem} className="mt-4 flex items-center text-brand-teal hover:text-opacity-80 font-semibold transition-all group"><PlusCircleIcon className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />{addBtnText}</button>
         </div>
     );
 
@@ -234,86 +243,90 @@ const App: React.FC = () => {
             </div>
             
             <div className="min-h-screen text-white font-sans p-4 sm:p-6 lg:p-8 flex flex-col">
-                <header className="text-center mb-8">
-                    <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-brand-primary to-brand-secondary text-transparent bg-clip-text">
-                        Gerador de Contratos Inteligente
+                <header className="text-center mb-10 md:mb-16">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-brand-primary to-brand-secondary text-transparent bg-clip-text">
+                        Gerador de Contratos IA
                     </h1>
-                    <p className="text-slate-400 mt-2">Crie, personalize e exporte contratos com facilidade.</p>
                 </header>
 
-                <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full flex-grow">
+                <main className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-screen-2xl mx-auto w-full flex-grow">
                     {step === 'initial' ? (
-                        <section className="animate-fade-in space-y-6 lg:col-span-2 max-w-3xl mx-auto w-full">
-                            <div className="bg-slate-800 p-6 rounded-lg shadow-2xl">
-                                <h2 className="text-2xl font-semibold mb-4 text-slate-100">1. Seus Dados (Contratada)</h2>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label htmlFor="companyName" className={labelStyle}>Nome da Empresa / Seu Nome</label>
-                                        <input id="companyName" name="companyName" type="text" value={contractorData.companyName} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Ex: João Silva Serviços de TI" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="companyId" className={labelStyle}>Seu CNPJ ou CPF</label>
-                                        <input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle} placeholder="00.000.000/0001-00" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="companyAddress" className={labelStyle}>Seu Endereço Completo</label>
-                                        <input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Rua das Flores, 123, São Paulo - SP" />
-                                    </div>
-                                </div>
-                            </div>
-                             <div className="bg-slate-800 p-6 rounded-lg shadow-2xl">
-                                <h2 className="text-2xl font-semibold mb-4 text-slate-100">2. Descreva o Contrato</h2>
-                                 <textarea
-                                    value={contractDescription}
-                                    onChange={(e) => setContractDescription(e.target.value)}
-                                    placeholder="Descreva o serviço a ser prestado. Ex: 'Um contrato para gestão de redes sociais, incluindo 3 posts por semana no Instagram e 1 relatório mensal de desempenho.'"
-                                    className="w-full h-36 p-3 bg-slate-900 border border-slate-700 rounded-md focus:ring-2 focus:ring-brand-primary focus:outline-none transition-shadow"
-                                    aria-label="Descrição do tipo de contrato"
-                                />
-                                <div className="mt-4">
-                                    <button
-                                        onClick={handleGenerateContractStructure}
-                                        disabled={isGenerating || !contractDescription.trim() || !contractorData.companyName}
-                                        className="bg-brand-primary hover:bg-opacity-90 text-white font-bold py-3 px-4 rounded-md transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isGenerating ? <LoadingIcon className="animate-spin h-5 w-5 mr-2" /> : <SparklesIcon className="mr-2 h-5 w-5" />}
-                                        {isGenerating ? 'Gerando...' : 'Gerar Estrutura com IA'}
-                                    </button>
-                                </div>
-                            </div>
+                        <section className="animate-fade-in lg:col-span-5 max-w-4xl mx-auto w-full">
+                           <div className="text-center mb-12">
+                               <h2 className="text-3xl font-bold text-slate-100 sm:text-4xl">Crie Contratos Sob Medida em Segundos</h2>
+                               <p className="mt-4 text-lg text-slate-400">Descreva sua necessidade e nossa IA gerará uma base sólida e profissional para seu acordo legal.</p>
+                           </div>
+                           
+                           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl mb-8 animate-slide-in-up">
+                               <div className="flex items-start space-x-4">
+                                   <div className="bg-brand-primary/20 text-brand-primary rounded-full p-2"><LightbulbIcon className="h-6 w-6"/></div>
+                                   <div>
+                                       <h3 className="text-lg font-semibold text-slate-100">Como Escrever um Bom Prompt?</h3>
+                                       <p className="text-slate-400 mt-1 mb-4 text-sm">Para a IA gerar o contrato ideal, seja claro e específico. Quanto mais detalhes, melhor o resultado.</p>
+                                       <ul className="list-disc list-inside text-slate-400 space-y-2 text-sm">
+                                           <li><strong>Seja Específico:</strong> Em vez de "marketing", diga "gestão de mídias sociais para Instagram e Facebook".</li>
+                                           <li><strong>Inclua Entregáveis:</strong> Mencione quantidades, como "3 posts por semana e 1 relatório mensal".</li>
+                                           <li><strong>Defina Prazos e Pagamentos:</strong> Ex: "contrato de 6 meses com pagamento mensal de R$1.500".</li>
+                                       </ul>
+                                       <p className="text-slate-500 mt-3 text-xs italic">Exemplo: "Um contrato para desenvolver um site institucional para uma cafeteria. Incluir 5 páginas (Home, Sobre, Menu, Contato, Blog), design responsivo e entrega em 45 dias."</p>
+                                   </div>
+                               </div>
+                           </div>
+
+                           <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl mb-8 animate-slide-in-up" style={{ animationDelay: '0.15s' }}>
+                               <h3 className="text-2xl font-bold mb-5 text-slate-100">1. Seus Dados (Contratada)</h3>
+                               <div className="space-y-4">
+                                   <input id="companyName" name="companyName" type="text" value={contractorData.companyName} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Nome da Empresa / Seu Nome Completo" />
+                                   <div className="grid md:grid-cols-2 gap-4">
+                                       <input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Seu CNPJ ou CPF" />
+                                       <input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Seu Endereço Completo" />
+                                   </div>
+                               </div>
+                           </div>
+
+                           <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+                               <h3 className="text-2xl font-bold mb-5 text-slate-100">2. Descreva o Contrato</h3>
+                               <textarea value={contractDescription} onChange={(e) => setContractDescription(e.target.value)} placeholder="Ex: Contrato de social media, com 3 posts por semana..." className={`${inputStyle} h-36 text-base`} aria-label="Descrição do tipo de contrato"/>
+                               <div className="mt-6">
+                                   <button onClick={handleGenerateContractStructure} disabled={isGenerating || !contractDescription.trim() || !contractorData.companyName} className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed animate-pulse-glow disabled:animate-none">
+                                       {isGenerating ? <LoadingIcon className="animate-spin h-6 w-6 mr-3" /> : <SparklesIcon className="mr-3 h-6 w-6" />}
+                                       {isGenerating ? 'Gerando Estrutura...' : 'Gerar com IA'}
+                                   </button>
+                               </div>
+                           </div>
                         </section>
                     ) : (
                     <>
-                        <section className="animate-fade-in space-y-6">
-                            <div className="bg-slate-800 p-6 rounded-lg shadow-2xl">
-                                <div className="text-center animate-fade-in">
-                                    <h2 className="text-2xl font-semibold mb-4 text-slate-100">Estrutura Gerada!</h2>
-                                    <p className="text-slate-400 mb-6">Ajuste os detalhes, insira os dados do cliente e gere o PDF.</p>
-                                    <button onClick={handleReset} className="bg-brand-secondary hover:bg-opacity-90 text-white font-bold py-3 px-4 rounded-md transition-all duration-300 transform hover:scale-105 flex items-center justify-center w-full">
-                                        <RefreshIcon className="mr-2 h-5 w-5" />
-                                        Começar de Novo
-                                    </button>
-                                </div>
+                        {/* Left Column */}
+                        <section className="lg:col-span-3 space-y-8">
+                             <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up">
+                                <h2 className="text-2xl font-bold mb-2 text-slate-100">Estrutura Gerada!</h2>
+                                <p className="text-slate-400 mb-4">Agora, personalize os detalhes, adicione os dados do cliente e finalize seu contrato.</p>
+                                <button onClick={handleReset} className="border border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center w-full">
+                                    <RefreshIcon className="mr-2 h-5 w-5" />
+                                    Começar de Novo
+                                </button>
                             </div>
 
-                             <div className="bg-slate-800 p-6 rounded-lg shadow-2xl animate-slide-up">
-                                <h2 className="text-2xl font-semibold mb-4 text-slate-100">1. Dados da Contratada</h2>
+                            <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
+                                <h3 className="text-xl font-semibold mb-4 text-slate-200">1. Dados da Contratada</h3>
                                  <div className="space-y-4">
                                      <div><label htmlFor="companyName" className={labelStyle}>Nome da Empresa / Seu Nome</label><input id="companyName" name="companyName" type="text" value={contractorData.companyName} onChange={handleUpdateContractorField} className={inputStyle}/></div>
-                                     <div><label htmlFor="companyId" className={labelStyle}>Seu CNPJ ou CPF</label><input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle}/></div>
-                                     <div><label htmlFor="companyAddress" className={labelStyle}>Seu Endereço Completo</label><input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle}/></div>
+                                     <div className="grid md:grid-cols-2 gap-4">
+                                        <div><label htmlFor="companyId" className={labelStyle}>Seu CNPJ ou CPF</label><input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle}/></div>
+                                        <div><label htmlFor="companyAddress" className={labelStyle}>Seu Endereço Completo</label><input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle}/></div>
+                                     </div>
                                  </div>
                              </div>
-
-                            <div className="bg-slate-800 p-6 rounded-lg shadow-2xl animate-slide-up">
-                                <h2 className="text-2xl font-semibold mb-4 text-slate-100">2. Dados do Cliente (Contratante)</h2>
-                                <textarea value={rawText} onChange={handleRawTextChange} placeholder="Cole aqui o texto com as informações do cliente para preencher o formulário abaixo." className="w-full h-32 p-3 bg-slate-900 border border-slate-700 rounded-md focus:ring-2 focus:ring-brand-primary focus:outline-none transition-shadow" aria-label="Dados do cliente para preenchimento do contrato" />
-                                <button onClick={handleParseData} disabled={!rawText.trim()} className="mt-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                             
+                             <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+                                <h3 className="text-xl font-semibold mb-4 text-slate-200">2. Dados do Cliente (Contratante)</h3>
+                                <textarea value={rawText} onChange={handleRawTextChange} placeholder="Cole aqui o texto com as informações do cliente para preencher o formulário abaixo." className={`${inputStyle} h-32`} aria-label="Dados do cliente" />
+                                <button onClick={handleParseData} disabled={!rawText.trim()} className="mt-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed">
                                     <PlayIcon className="mr-2 h-5 w-5" /> Analisar e Preencher
                                 </button>
                                 {isParsed && (
-                                    <div className="mt-6 border-t border-slate-700 pt-4">
-                                        <h3 className="text-lg font-semibold mb-3 text-slate-200">Confirmar Dados do Cliente</h3>
+                                    <div className="mt-6 border-t border-slate-700 pt-6 space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {renderClientFormField('name', 'Nome Completo')}
                                             {renderClientFormField('email', 'Email', 'email')}
@@ -321,45 +334,47 @@ const App: React.FC = () => {
                                             {renderClientFormField('cpf', 'CPF')}
                                             {renderClientFormField('rg', 'RG')}
                                             {renderClientFormField('birthDate', 'Data de Nascimento')}
-                                            {renderClientFormField('address', 'Endereço Completo')}
-                                            {renderClientFormField('instagram', 'Instagram')}
+                                            {renderClientFormField('address', 'Endereço Completo', 'text', 'md:col-span-2')}
                                             {renderClientFormField('course', 'Curso / Serviço Adquirido')}
                                             {renderClientFormField('paymentMethod', 'Forma de Pagamento')}
-                                            {renderClientFormField('howFound', 'Como Encontrou')}
-                                            <div className="md:col-span-2"><label htmlFor="signatureConfirmation" className={labelStyle}>Frase de Assinatura</label><textarea id="signatureConfirmation" name="signatureConfirmation" value={formData.signatureConfirmation} onChange={handleUpdateField} className={`${inputStyle} h-20`} rows={3}/></div>
                                         </div>
-                                        <div className="mt-6 border-t border-slate-700 pt-4"><label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" name="isMinor" checked={formData.isMinor} onChange={handleUpdateField} className="h-5 w-5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"/><span className="text-slate-300">Cliente é menor de idade?</span></label></div>
+                                        <div><label htmlFor="signatureConfirmation" className={labelStyle}>Frase de Assinatura</label><textarea id="signatureConfirmation" name="signatureConfirmation" value={formData.signatureConfirmation} onChange={handleUpdateField} className={`${inputStyle} h-20`} rows={3}/></div>
+                                        <div className="pt-2"><label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" name="isMinor" checked={formData.isMinor} onChange={handleUpdateField} className="h-5 w-5 rounded border-slate-500 bg-slate-700 text-brand-primary focus:ring-brand-primary"/><span className="text-slate-300">Cliente é menor de idade?</span></label></div>
                                         {formData.isMinor && (
-                                            <div className="mt-4 p-4 bg-slate-900/50 rounded-md space-y-4 animate-fade-in">
-                                                <h3 className="text-lg font-semibold text-brand-gold">Dados do Responsável Legal</h3>
+                                            <div className="p-4 bg-slate-900/50 rounded-lg space-y-4 animate-fade-in border border-brand-gold/20">
+                                                <h4 className="text-lg font-semibold text-brand-gold">Dados do Responsável Legal</h4>
+                                                <div className="grid md:grid-cols-2 gap-4">
                                                 {renderClientFormField('parentName', 'Nome do Responsável')}
                                                 {renderClientFormField('parentCpf', 'CPF do Responsável')}
-                                                {renderClientFormField('parentRg', 'RG do Responsável')}
+                                                {renderClientFormField('parentRg', 'RG do Responsável', 'text', 'md:col-span-2')}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
                                 )}
                             </div>
-                            <div className="bg-slate-800 p-6 rounded-lg shadow-2xl animate-slide-up">
-                                <h2 className="text-2xl font-semibold mb-4 text-slate-100">3. Personalize o Contrato</h2>
-                                <div className="space-y-6">
+
+                            <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+                                <h3 className="text-xl font-semibold mb-4 text-slate-200">3. Personalize o Contrato</h3>
+                                <div className="space-y-8">
                                     {renderClauseEditor("Cláusulas Principais", clauses, handleClauseChange, handleAddClause, handleRemoveClause, "Adicionar Cláusula")}
-                                    <div className="border-t border-slate-700 pt-6">{renderClauseEditor("Termos e Condições Gerais", terms, handleTermChange, handleAddTerm, handleRemoveTerm, "Adicionar Termo")}</div>
+                                    <div className="border-t border-slate-700 pt-8">{renderClauseEditor("Termos e Condições Gerais", terms, handleTermChange, handleAddTerm, handleRemoveTerm, "Adicionar Termo")}</div>
                                 </div>
                             </div>
                         </section>
 
-                        <section className="animate-fade-in [animation-delay:0.2s] lg:sticky top-8 self-start">
-                            <div className="bg-slate-800 p-6 rounded-lg shadow-2xl">
-                               <div className="flex justify-between items-center mb-4">
-                                 <h2 className="text-2xl font-semibold text-slate-100">4. Pré-visualização</h2>
-                                 <button onClick={handleGeneratePdf} disabled={isLoading} className="bg-brand-gold hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-md transition-all duration-300 transform hover:scale-105 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 w-40">
+                        {/* Right Column */}
+                        <section className="lg:col-span-2 lg:sticky top-8 self-start animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                            <div className="bg-slate-800 p-6 rounded-xl shadow-2xl">
+                               <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                                 <h2 className="text-2xl font-bold text-slate-100">Pré-visualização</h2>
+                                 <button onClick={handleGeneratePdf} disabled={isLoading} className="bg-brand-gold hover:bg-opacity-90 text-slate-900 font-bold py-2 px-5 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 w-full sm:w-auto flex-shrink-0">
                                     {isLoading ? <LoadingIcon className="animate-spin h-5 w-5" /> : <FileIcon className="mr-2 h-5 w-5" />}
                                     <span className={isLoading ? 'ml-2' : ''}>{isLoading ? 'Gerando...' : 'Gerar PDF'}</span>
                                  </button>
                                </div>
-                                <div className="h-[80vh] overflow-y-auto bg-slate-600 rounded-md p-2 ring-1 ring-slate-700">
-                                    <div className="transform scale-[0.6] sm:scale-[0.75] md:scale-[0.9] lg:scale-[0.7] xl:scale-[0.8] origin-top-left">
+                                <div className="h-[75vh] overflow-y-auto bg-slate-600 rounded-lg p-1 sm:p-2 ring-1 ring-slate-700">
+                                    <div className="transform scale-[0.6] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.6] xl:scale-[0.75] origin-top">
                                         <ContractDocument id="contract-preview-visible" formData={formData} contractorData={contractorData} contractTitle={contractTitle} clauses={clauses} terms={terms} />
                                     </div>
                                 </div>
@@ -369,7 +384,7 @@ const App: React.FC = () => {
                     )}
                 </main>
                 <footer className="text-center py-6 border-t border-slate-800 mt-12">
-                    <a href="https://www.instagram.com/InteligenciArte.IA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-slate-400 hover:text-brand-secondary transition-colors text-sm">
+                    <a href="https://www.instagram.com/InteligenciArte.IA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-slate-500 hover:text-brand-secondary transition-colors text-sm">
                         Desenvolvido por @InteligenciArte.IA <InstagramIcon className="ml-2 h-4 w-4" />
                     </a>
                 </footer>
