@@ -1,0 +1,6 @@
+{
+  "name": "Contratos Inteligente",
+  "description": "Uma aplicação para gerar contratos de prestação de serviços em PDF de forma dinâmica e inteligente, com o auxílio de IA.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
