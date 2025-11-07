@@ -17,7 +17,7 @@ const Placeholder: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 const ContractDocument: React.FC<ContractDocumentProps> = ({ id, formData, contractorData, clauses, terms, contractTitle }) => {
     const { 
-        name, cpf, rg, address, isMinor, 
+        name, cpf, rg, address, isMinor, cnpj,
         parentName, parentCpf, parentRg, signatureConfirmation 
     } = formData;
     
@@ -47,7 +47,10 @@ const ContractDocument: React.FC<ContractDocumentProps> = ({ id, formData, contr
                     {contractorData.email && <>, e endereço de e-mail {contractorData.email}</>}, doravante denominada simplesmente <strong>CONTRATADA</strong>.
                 </p>
                 <p className="text-justify">
-                    <strong>CONTRATANTE:</strong> {name || <Placeholder>(Nome do Cliente)</Placeholder>}, portador(a) do CPF nº {cpf || <Placeholder>(CPF do Cliente)</Placeholder>} e do RG nº {rg || <Placeholder>(RG do Cliente)</Placeholder>}, residente e domiciliado(a) no endereço: {address || <Placeholder>(Endereço do Cliente)</Placeholder>}.
+                    <strong>CONTRATANTE:</strong> {name || <Placeholder>(Nome do Cliente)</Placeholder>}
+                    {cnpj && <>, inscrita no CNPJ sob o nº {cnpj}</>}
+                    {cpf && <>, portador(a) do CPF nº {cpf}</>}
+                    {rg && <> e do RG nº {rg}</>}, residente e domiciliado(a) no endereço: {address || <Placeholder>(Endereço do Cliente)</Placeholder>}.
                 </p>
                 {isMinor && (
                      <p className="mt-3 bg-gray-100 p-3 border border-gray-200 text-justify">

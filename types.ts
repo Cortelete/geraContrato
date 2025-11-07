@@ -3,6 +3,7 @@ export interface FormData {
     email: string;
     phone: string;
     cpf: string;
+    cnpj: string;
     rg: string;
     birthDate: string;
     address: string;

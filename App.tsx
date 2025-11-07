@@ -2,12 +2,11 @@
 import React, { useState, useCallback, ChangeEvent } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { ContractorData, FormData, Clause } from './types';
-import { parseClientData } from './services/parser';
 import { generatePdf } from './services/pdfGenerator';
 import ContractDocument from './components/ContractDocument';
 
 const initialFormData: FormData = {
-    name: '', email: '', phone: '', cpf: '', rg: '', birthDate: '',
+    name: '', email: '', phone: '', cpf: '', cnpj: '', rg: '', birthDate: '',
     address: '', instagram: '', course: '', paymentMethod: '', howFound: '',
     termsAccepted: '', signatureConfirmation: '', isMinor: false,
     parentName: '', parentCpf: '', parentRg: '',
@@ -71,30 +70,10 @@ const App: React.FC = () => {
     const [contractTitle, setContractTitle] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     
-    const [rawText, setRawText] = useState('');
     const [formData, setFormData] = useState<FormData>(initialFormData);
-    const [isParsed, setIsParsed] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // For PDF generation
     const [clauses, setClauses] = useState<Clause[]>([]);
     const [terms, setTerms] = useState<Clause[]>([]);
-
-    const handleRawTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setRawText(e.target.value);
-    };
-
-    const handleParseData = useCallback(() => {
-        if (rawText.trim() === '') return;
-        let parsedData = parseClientData(rawText);
-        if (parsedData.name && parsedData.signatureConfirmation) {
-            parsedData.signatureConfirmation = `Eu, ${parsedData.name}, aceito os termos e confirmo.`;
-        }
-        if (Object.keys(parsedData).length > 1) {
-            setFormData(prev => ({ ...prev, ...parsedData }));
-            setIsParsed(true);
-        } else {
-            setIsParsed(false);
-        }
-    }, [rawText]);
     
     const handleUpdateContractorField = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -118,14 +97,12 @@ const App: React.FC = () => {
     }, [formData.name, contractorData]);
 
     const handleReset = useCallback(() => {
-        setRawText('');
         setFormData(initialFormData);
         setContractorData(initialContractorData);
         setContractDescription('');
         setContractTitle('');
         setClauses([]);
         setTerms([]);
-        setIsParsed(false);
         setStep('initial');
     }, []);
 
@@ -249,21 +226,17 @@ const App: React.FC = () => {
     
     const renderClientDataSection = (isEditing: boolean) => (
          <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: isEditing ? '0.2s' : '0.15s' }}>
-            <h3 className="text-xl font-semibold mb-4 text-slate-200">{isEditing ? '2. Dados do Cliente (Contratante)' : '2. Dados do Cliente (Contratante)'}</h3>
-            <textarea value={rawText} onChange={handleRawTextChange} placeholder="Opcional: Cole aqui o texto com as informações do cliente para preencher o formulário abaixo." className={`${inputStyle} h-32`} aria-label="Dados do cliente" />
-            <button onClick={handleParseData} disabled={!rawText.trim()} className="mt-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed">
-                <PlayIcon className="mr-2 h-5 w-5" /> Analisar Texto e Preencher Formulário
-            </button>
-            {isParsed && <p className="text-sm text-green-400 mt-2 animate-fade-in">✅ Dados extraídos e preenchidos abaixo. Verifique e edite se necessário.</p>}
-
-            <div className="mt-4 border-t border-slate-700 pt-6 space-y-4">
+            <h3 className="text-xl font-semibold mb-6 text-slate-200">2. Dados do Cliente (Contratante)</h3>
+            
+            <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {renderClientFormField('name', 'Nome Completo')}
+                    {renderClientFormField('name', 'Nome Completo / Razão Social')}
                     {renderClientFormField('email', 'Email', 'email')}
                     {renderClientFormField('phone', 'Telefone', 'tel')}
                     {renderClientFormField('cpf', 'CPF')}
+                    {renderClientFormField('cnpj', 'CNPJ')}
                     {renderClientFormField('rg', 'RG')}
-                    {renderClientFormField('birthDate', 'Data de Nascimento')}
+                    {renderClientFormField('birthDate', 'Data de Nascimento / Fundação')}
                     {renderClientFormField('address', 'Endereço Completo', 'text', 'md:col-span-2')}
                     {renderClientFormField('course', 'Curso / Serviço Adquirido')}
                     {renderClientFormField('paymentMethod', 'Forma de Pagamento')}
