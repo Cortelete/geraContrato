@@ -19,9 +19,14 @@ export interface FormData {
 }
 
 export interface ContractorData {
-    companyName: string;
-    companyId: string; // For CNPJ or CPF
-    companyAddress: string;
+    businessName: string;
+    tradeName: string;
+    cnpj: string;
+    cpf: string;
+    email: string;
+    cep: string;
+    streetAddress: string;
+    city: string;
 }
 
 export interface Clause {

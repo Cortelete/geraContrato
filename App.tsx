@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, ChangeEvent } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { ContractorData, FormData, Clause } from './types';
@@ -13,9 +14,14 @@ const initialFormData: FormData = {
 };
 
 const initialContractorData: ContractorData = {
-    companyName: '',
-    companyId: '',
-    companyAddress: ''
+    businessName: '',
+    tradeName: '',
+    cnpj: '',
+    cpf: '',
+    email: '',
+    cep: '',
+    streetAddress: '',
+    city: '',
 };
 
 const FileIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -83,7 +89,7 @@ const App: React.FC = () => {
             parsedData.signatureConfirmation = `Eu, ${parsedData.name}, aceito os termos e confirmo.`;
         }
         if (Object.keys(parsedData).length > 1) {
-            setFormData({ ...initialFormData, ...parsedData });
+            setFormData(prev => ({ ...prev, ...parsedData }));
             setIsParsed(true);
         } else {
             setIsParsed(false);
@@ -96,18 +102,18 @@ const App: React.FC = () => {
     }, []);
 
     const handleUpdateField = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        const isCheckbox = 'checked' in e.target;
+        const target = e.target as HTMLInputElement;
+        const { name, value, type, checked } = target;
         setFormData(prev => ({
             ...prev,
-            [name]: isCheckbox ? (e.target as HTMLInputElement).checked : value
+            [name]: type === 'checkbox' ? checked : value
         }));
     }, []);
     
     const handleGeneratePdf = useCallback(async () => {
         setIsLoading(true);
         const fileName = `Contrato_${formData.name.replace(/\s/g, '_') || 'cliente'}`;
-        await generatePdf('contract-pdf-source', fileName, contractorData.companyName, contractorData.companyAddress);
+        await generatePdf('contract-pdf-source', fileName, contractorData.businessName || contractorData.tradeName, contractorData.city);
         setIsLoading(false);
     }, [formData.name, contractorData]);
 
@@ -214,6 +220,70 @@ const App: React.FC = () => {
         </div>
     );
     
+    const renderContractorForm = (isEditing = false) => {
+        const field = (name: keyof ContractorData, label: string, placeholder: string, containerClass = '') => (
+             <div className={containerClass}>
+                {isEditing && <label htmlFor={`contractor-${name}`} className={labelStyle}>{label}</label>}
+                <input id={`contractor-${name}`} name={name} type="text" value={contractorData[name]} onChange={handleUpdateContractorField} className={inputStyle} placeholder={placeholder} />
+            </div>
+        );
+        return (
+            <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                    {field('businessName', 'Nome Empresarial', 'Nome Empresarial / Seu Nome Completo')}
+                    {field('tradeName', 'Nome Fantasia', 'Nome Fantasia (Opcional)')}
+                </div>
+                 <div className="grid md:grid-cols-2 gap-4">
+                    {field('cnpj', 'CNPJ', 'CNPJ')}
+                    {field('cpf', 'CPF', 'CPF')}
+                </div>
+                {field('email', 'Email', 'Email de Contato', 'md:col-span-2')}
+                 <div className="grid md:grid-cols-3 gap-4">
+                    {field('cep', 'CEP', 'CEP')}
+                    {field('streetAddress', 'Logradouro', 'Logradouro, Nº, Bairro', 'md:col-span-2')}
+                </div>
+                {field('city', 'Cidade', 'Cidade - Estado', 'md:col-span-3')}
+            </div>
+        );
+    }
+    
+    const renderClientDataSection = (isEditing: boolean) => (
+         <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: isEditing ? '0.2s' : '0.15s' }}>
+            <h3 className="text-xl font-semibold mb-4 text-slate-200">{isEditing ? '2. Dados do Cliente (Contratante)' : '2. Dados do Cliente (Contratante)'}</h3>
+            <textarea value={rawText} onChange={handleRawTextChange} placeholder="Opcional: Cole aqui o texto com as informações do cliente para preencher o formulário abaixo." className={`${inputStyle} h-32`} aria-label="Dados do cliente" />
+            <button onClick={handleParseData} disabled={!rawText.trim()} className="mt-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                <PlayIcon className="mr-2 h-5 w-5" /> Analisar Texto e Preencher Formulário
+            </button>
+            {isParsed && <p className="text-sm text-green-400 mt-2 animate-fade-in">✅ Dados extraídos e preenchidos abaixo. Verifique e edite se necessário.</p>}
+
+            <div className="mt-4 border-t border-slate-700 pt-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {renderClientFormField('name', 'Nome Completo')}
+                    {renderClientFormField('email', 'Email', 'email')}
+                    {renderClientFormField('phone', 'Telefone', 'tel')}
+                    {renderClientFormField('cpf', 'CPF')}
+                    {renderClientFormField('rg', 'RG')}
+                    {renderClientFormField('birthDate', 'Data de Nascimento')}
+                    {renderClientFormField('address', 'Endereço Completo', 'text', 'md:col-span-2')}
+                    {renderClientFormField('course', 'Curso / Serviço Adquirido')}
+                    {renderClientFormField('paymentMethod', 'Forma de Pagamento')}
+                </div>
+                <div><label htmlFor="signatureConfirmation" className={labelStyle}>Frase de Assinatura</label><textarea id="signatureConfirmation" name="signatureConfirmation" value={formData.signatureConfirmation} onChange={handleUpdateField} className={`${inputStyle} h-20`} rows={3}/></div>
+                <div className="pt-2"><label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" name="isMinor" checked={formData.isMinor} onChange={handleUpdateField} className="h-5 w-5 rounded border-slate-500 bg-slate-700 text-brand-primary focus:ring-brand-primary"/><span className="text-slate-300">Cliente é menor de idade?</span></label></div>
+                {formData.isMinor && (
+                    <div className="p-4 bg-slate-900/50 rounded-lg space-y-4 animate-fade-in border border-brand-gold/20">
+                        <h4 className="text-lg font-semibold text-brand-gold">Dados do Responsável Legal</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                        {renderClientFormField('parentName', 'Nome do Responsável')}
+                        {renderClientFormField('parentCpf', 'CPF do Responsável')}
+                        {renderClientFormField('parentRg', 'RG do Responsável', 'text', 'md:col-span-2')}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
     const renderClauseEditor = (
         title: string, items: Clause[],
         onItemChange: (id: string, field: keyof Clause, value: string) => void,
@@ -273,22 +343,20 @@ const App: React.FC = () => {
                                </div>
                            </div>
 
-                           <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl mb-8 animate-slide-in-up" style={{ animationDelay: '0.15s' }}>
+                           <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl mb-8 animate-slide-in-up" style={{ animationDelay: '0s' }}>
                                <h3 className="text-2xl font-bold mb-5 text-slate-100">1. Seus Dados (Contratada)</h3>
-                               <div className="space-y-4">
-                                   <input id="companyName" name="companyName" type="text" value={contractorData.companyName} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Nome da Empresa / Seu Nome Completo" />
-                                   <div className="grid md:grid-cols-2 gap-4">
-                                       <input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Seu CNPJ ou CPF" />
-                                       <input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle} placeholder="Seu Endereço Completo" />
-                                   </div>
-                               </div>
+                               {renderContractorForm(false)}
+                           </div>
+                            
+                           <div className="mb-8">
+                               {renderClientDataSection(false)}
                            </div>
 
                            <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
-                               <h3 className="text-2xl font-bold mb-5 text-slate-100">2. Descreva o Contrato</h3>
+                               <h3 className="text-2xl font-bold mb-5 text-slate-100">3. Descreva o Contrato</h3>
                                <textarea value={contractDescription} onChange={(e) => setContractDescription(e.target.value)} placeholder="Ex: Contrato de social media, com 3 posts por semana..." className={`${inputStyle} h-36 text-base`} aria-label="Descrição do tipo de contrato"/>
                                <div className="mt-6">
-                                   <button onClick={handleGenerateContractStructure} disabled={isGenerating || !contractDescription.trim() || !contractorData.companyName} className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed animate-pulse-glow disabled:animate-none">
+                                   <button onClick={handleGenerateContractStructure} disabled={isGenerating || !contractDescription.trim() || !contractorData.businessName} className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed animate-pulse-glow disabled:animate-none">
                                        {isGenerating ? <LoadingIcon className="animate-spin h-6 w-6 mr-3" /> : <SparklesIcon className="mr-3 h-6 w-6" />}
                                        {isGenerating ? 'Gerando Estrutura...' : 'Gerar com IA'}
                                    </button>
@@ -310,49 +378,10 @@ const App: React.FC = () => {
 
                             <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
                                 <h3 className="text-xl font-semibold mb-4 text-slate-200">1. Dados da Contratada</h3>
-                                 <div className="space-y-4">
-                                     <div><label htmlFor="companyName" className={labelStyle}>Nome da Empresa / Seu Nome</label><input id="companyName" name="companyName" type="text" value={contractorData.companyName} onChange={handleUpdateContractorField} className={inputStyle}/></div>
-                                     <div className="grid md:grid-cols-2 gap-4">
-                                        <div><label htmlFor="companyId" className={labelStyle}>Seu CNPJ ou CPF</label><input id="companyId" name="companyId" type="text" value={contractorData.companyId} onChange={handleUpdateContractorField} className={inputStyle}/></div>
-                                        <div><label htmlFor="companyAddress" className={labelStyle}>Seu Endereço Completo</label><input id="companyAddress" name="companyAddress" type="text" value={contractorData.companyAddress} onChange={handleUpdateContractorField} className={inputStyle}/></div>
-                                     </div>
-                                 </div>
+                                 {renderContractorForm(true)}
                              </div>
                              
-                             <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
-                                <h3 className="text-xl font-semibold mb-4 text-slate-200">2. Dados do Cliente (Contratante)</h3>
-                                <textarea value={rawText} onChange={handleRawTextChange} placeholder="Cole aqui o texto com as informações do cliente para preencher o formulário abaixo." className={`${inputStyle} h-32`} aria-label="Dados do cliente" />
-                                <button onClick={handleParseData} disabled={!rawText.trim()} className="mt-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <PlayIcon className="mr-2 h-5 w-5" /> Analisar e Preencher
-                                </button>
-                                {isParsed && (
-                                    <div className="mt-6 border-t border-slate-700 pt-6 space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {renderClientFormField('name', 'Nome Completo')}
-                                            {renderClientFormField('email', 'Email', 'email')}
-                                            {renderClientFormField('phone', 'Telefone', 'tel')}
-                                            {renderClientFormField('cpf', 'CPF')}
-                                            {renderClientFormField('rg', 'RG')}
-                                            {renderClientFormField('birthDate', 'Data de Nascimento')}
-                                            {renderClientFormField('address', 'Endereço Completo', 'text', 'md:col-span-2')}
-                                            {renderClientFormField('course', 'Curso / Serviço Adquirido')}
-                                            {renderClientFormField('paymentMethod', 'Forma de Pagamento')}
-                                        </div>
-                                        <div><label htmlFor="signatureConfirmation" className={labelStyle}>Frase de Assinatura</label><textarea id="signatureConfirmation" name="signatureConfirmation" value={formData.signatureConfirmation} onChange={handleUpdateField} className={`${inputStyle} h-20`} rows={3}/></div>
-                                        <div className="pt-2"><label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" name="isMinor" checked={formData.isMinor} onChange={handleUpdateField} className="h-5 w-5 rounded border-slate-500 bg-slate-700 text-brand-primary focus:ring-brand-primary"/><span className="text-slate-300">Cliente é menor de idade?</span></label></div>
-                                        {formData.isMinor && (
-                                            <div className="p-4 bg-slate-900/50 rounded-lg space-y-4 animate-fade-in border border-brand-gold/20">
-                                                <h4 className="text-lg font-semibold text-brand-gold">Dados do Responsável Legal</h4>
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                {renderClientFormField('parentName', 'Nome do Responsável')}
-                                                {renderClientFormField('parentCpf', 'CPF do Responsável')}
-                                                {renderClientFormField('parentRg', 'RG do Responsável', 'text', 'md:col-span-2')}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                             {renderClientDataSection(true)}
 
                             <div className="bg-slate-800 p-6 rounded-xl shadow-2xl animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
                                 <h3 className="text-xl font-semibold mb-4 text-slate-200">3. Personalize o Contrato</h3>

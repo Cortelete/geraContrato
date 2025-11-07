@@ -21,17 +21,30 @@ const ContractDocument: React.FC<ContractDocumentProps> = ({ id, formData, contr
         parentName, parentCpf, parentRg, signatureConfirmation 
     } = formData;
     
+    const contractorIdentifier = contractorData.cnpj 
+        ? `inscrita no CNPJ sob o nº ${contractorData.cnpj}` 
+        : contractorData.cpf 
+        ? `inscrito(a) no CPF sob o nº ${contractorData.cpf}` 
+        : <Placeholder>(CNPJ/CPF da Contratada)</Placeholder>;
+
+    const fullAddress = [contractorData.streetAddress, contractorData.city, contractorData.cep && `CEP: ${contractorData.cep}`]
+        .filter(Boolean)
+        .join(', ');
+
     return (
         <div id={id} className="bg-white text-black px-12 pt-16 pb-24 font-serif" style={{ width: '21cm', minHeight: '29.7cm' }}>
             <div className="text-center mb-10">
                 <h1 className="text-2xl font-bold uppercase">{contractTitle || <Placeholder>(Título do Contrato)</Placeholder>}</h1>
-                <h2 className="text-xl font-semibold mt-2">{contractorData.companyName || <Placeholder>(Nome da Empresa/Contratada)</Placeholder>}</h2>
+                <h2 className="text-xl font-semibold mt-2">{contractorData.businessName || <Placeholder>(Nome da Empresa/Contratada)</Placeholder>}</h2>
             </div>
 
             <div className="mb-8 text-sm leading-relaxed">
                 <h3 className="text-base font-bold mb-3 uppercase underline underline-offset-4">Partes Contratantes</h3>
                 <p className="mb-3 text-justify">
-                    <strong>CONTRATADA:</strong> {contractorData.companyName || <Placeholder>(Nome da Empresa/Contratada)</Placeholder>}, pessoa jurídica de direito privado (ou pessoa física), com CNPJ/CPF nº {contractorData.companyId || <Placeholder>(CNPJ/CPF da Contratada)</Placeholder>}, com sede em {contractorData.companyAddress || <Placeholder>(Endereço da Contratada)</Placeholder>}, doravante denominada simplesmente <strong>CONTRATADA</strong>.
+                    <strong>CONTRATADA:</strong> {contractorData.businessName || <Placeholder>(Nome Empresarial)</Placeholder>}
+                    {contractorData.tradeName && <>, com nome fantasia <strong>"{contractorData.tradeName}"</strong></>}
+                    , pessoa jurídica de direito privado (ou pessoa física), com {contractorIdentifier}, com sede em {fullAddress || <Placeholder>(Endereço da Contratada)</Placeholder>}
+                    {contractorData.email && <>, e endereço de e-mail {contractorData.email}</>}, doravante denominada simplesmente <strong>CONTRATADA</strong>.
                 </p>
                 <p className="text-justify">
                     <strong>CONTRATANTE:</strong> {name || <Placeholder>(Nome do Cliente)</Placeholder>}, portador(a) do CPF nº {cpf || <Placeholder>(CPF do Cliente)</Placeholder>} e do RG nº {rg || <Placeholder>(RG do Cliente)</Placeholder>}, residente e domiciliado(a) no endereço: {address || <Placeholder>(Endereço do Cliente)</Placeholder>}.
@@ -73,9 +86,9 @@ const ContractDocument: React.FC<ContractDocumentProps> = ({ id, formData, contr
 
                      <div className="mt-20 inline-block ml-16">
                         <div className="border-t border-black pt-2 px-12">
-                        <p className="font-serif text-base">{contractorData.companyName || <Placeholder>(Nome da Empresa/Contratada)</Placeholder>}</p>
+                        <p className="font-serif text-base">{contractorData.businessName || <Placeholder>(Nome da Empresa/Contratada)</Placeholder>}</p>
                         <p className="text-xs mt-1">(Assinatura da Contratada)</p>
-                        <p className="text-xs">CNPJ/CPF: {contractorData.companyId || <Placeholder>(CNPJ/CPF da Contratada)</Placeholder>}</p>
+                        <p className="text-xs">CNPJ/CPF: {contractorData.cnpj || contractorData.cpf || <Placeholder>(CNPJ/CPF da Contratada)</Placeholder>}</p>
                         </div>
                     </div>
                     
